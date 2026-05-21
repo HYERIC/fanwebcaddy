@@ -1,4 +1,4 @@
-module fanweb/caddy-dns-fanweb
+module github.com/HYERIC/fanwebcaddy
 
 go 1.23.0
 
