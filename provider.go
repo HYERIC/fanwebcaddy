@@ -138,17 +138,17 @@ type txtDelReq struct {
 }
 
 type apiResp struct {
-	Code    int    `json:"code"`    // 0 = success
+	Code    int    `json:"code"` // 0 = success
 	Message string `json:"message"`
 }
 
 func (p *Provider) apiTxtSet(ctx context.Context, domain, value string, ttl int) error {
-	return p.doRequest(ctx, http.MethodPost, "/fan/fanCaddyOutside/txtSet",
+	return p.doRequest(ctx, http.MethodPost, "/api/v1/fan/fanCaddyOutside/txtSet",
 		txtSetReq{Domain: domain, Value: value, TTL: ttl})
 }
 
 func (p *Provider) apiTxtDel(ctx context.Context, domain string) error {
-	return p.doRequest(ctx, http.MethodDelete, "/fan/fanCaddyOutside/txtDel",
+	return p.doRequest(ctx, http.MethodDelete, "/api/v1/fan/fanCaddyOutside/txtDel",
 		txtDelReq{Domain: domain})
 }
 
