@@ -84,8 +84,8 @@ func (h *CertEventHandler) UnmarshalCaddyfile(d *caddyfile.Dispenser) error {
 }
 
 // Handle processes Caddy events and forwards certificate events to fanwebbaidu.
-func (h *CertEventHandler) Handle(ctx context.Context, e caddy.Event) error {
-	name := e.Name
+func (h *CertEventHandler) Handle(ctx context.Context, e caddyevents.Event) error {
+	name := e.CloudEvent().Type
 	if name != "cert_obtained" && name != "cert_failed" {
 		// Silently ignore events we are not interested in.
 		// This allows the handler to be safely subscribed via "on *".

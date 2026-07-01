@@ -91,25 +91,15 @@ func (p *Provider) GetRecords(_ context.Context, _ string) ([]libdns.Record, err
 // Only TXT records are processed; others are ignored.
 func (p *Provider) AppendRecords(ctx context.Context, zone string, recs []libdns.Record) ([]libdns.Record, error) {
 	for i, rec := range recs {
-		var name, value string
-		var ttl time.Duration
-		switch r := rec.(type) {
-		case libdns.TXT:
-			name, value, ttl = r.Name, r.Text, r.TTL
-		case libdns.RR:
-			if r.Type != "TXT" {
-				continue
-			}
-			name, value, ttl = r.Name, r.Data, r.TTL
-		default:
+		if rec.Type != "TXT" {
 			continue
 		}
-		fqdn := absoluteName(name, zone)
-		ttlSec := int(ttl.Seconds())
+		fqdn := absoluteName(rec.Name, zone)
+		ttlSec := int(rec.TTL.Seconds())
 		if ttlSec <= 0 {
 			ttlSec = 120
 		}
-		if err := p.apiTxtSet(ctx, fqdn, value, ttlSec); err != nil {
+		if err := p.apiTxtSet(ctx, fqdn, rec.Value, ttlSec); err != nil {
 			return recs[:i], fmt.Errorf("fanweb dns: set TXT %s: %w", fqdn, err)
 		}
 	}
@@ -124,19 +114,10 @@ func (p *Provider) SetRecords(ctx context.Context, zone string, recs []libdns.Re
 // DeleteRecords removes TXT records from the zone via fanwebbaidu/txtDel.
 func (p *Provider) DeleteRecords(ctx context.Context, zone string, recs []libdns.Record) ([]libdns.Record, error) {
 	for i, rec := range recs {
-		var name string
-		switch r := rec.(type) {
-		case libdns.TXT:
-			name = r.Name
-		case libdns.RR:
-			if r.Type != "TXT" {
-				continue
-			}
-			name = r.Name
-		default:
+		if rec.Type != "TXT" {
 			continue
 		}
-		fqdn := absoluteName(name, zone)
+		fqdn := absoluteName(rec.Name, zone)
 		if err := p.apiTxtDel(ctx, fqdn); err != nil {
 			return recs[:i], fmt.Errorf("fanweb dns: delete TXT %s: %w", fqdn, err)
 		}
